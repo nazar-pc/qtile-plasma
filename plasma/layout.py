@@ -1,6 +1,7 @@
 import copy
 
 from xcffib.xproto import StackMode
+from libqtile.command.base import expose_command
 from libqtile.layout.base import Layout
 
 from .node import Node, AddMode, NotRestorableError
@@ -54,13 +55,13 @@ class Plasma(Layout):
 
     def clone(self, group):
         clone = copy.copy(self)
-        clone.group = group
+        clone._group = group
         clone.root = Node(None, *self.default_dimensions)
         clone.focused = None
         clone.add_mode = None
         return clone
 
-    def add(self, client):
+    def add_client(self, client):
         node = self.root if self.focused_node is None else self.focused_node
         new = Node(client)
         try:
@@ -123,15 +124,16 @@ class Plasma(Layout):
     def refocus(self):
         self.group.focus(self.focused)
 
-    def cmd_next(self):
+    def next(self):
         """Focus next window."""
         self.focus_node(self.focused_node.next_leaf)
 
-    def cmd_previous(self):
+    def previous(self):
         """Focus previous window."""
         self.focus_node(self.focused_node.prev_leaf)
 
-    def cmd_recent(self):
+    @expose_command()
+    def recent(self):
         """Focus most recently focused window.
 
         (Toggles between the two latest active windows.)
@@ -140,83 +142,100 @@ class Plasma(Layout):
         most_recent = max(nodes, key=lambda n: n.last_accessed)
         self.focus_node(most_recent)
 
-    def cmd_left(self):
+    @expose_command()
+    def left(self):
         """Focus window to the left."""
         self.focus_node(self.focused_node.close_left)
 
-    def cmd_right(self):
+    @expose_command()
+    def right(self):
         """Focus window to the right."""
         self.focus_node(self.focused_node.close_right)
 
-    def cmd_up(self):
+    @expose_command()
+    def up(self):
         """Focus window above."""
         self.focus_node(self.focused_node.close_up)
 
-    def cmd_down(self):
+    @expose_command()
+    def down(self):
         """Focus window below."""
         self.focus_node(self.focused_node.close_down)
 
-    def cmd_move_left(self):
+    @expose_command()
+    def move_left(self):
         """Move current window left."""
         self.focused_node.move_left()
         self.refocus()
 
-    def cmd_move_right(self):
+    @expose_command()
+    def move_right(self):
         """Move current window right."""
         self.focused_node.move_right()
         self.refocus()
 
-    def cmd_move_up(self):
+    @expose_command()
+    def move_up(self):
         """Move current window up."""
         self.focused_node.move_up()
         self.refocus()
 
-    def cmd_move_down(self):
+    @expose_command()
+    def move_down(self):
         """Move current window down."""
         self.focused_node.move_down()
         self.refocus()
 
-    def cmd_integrate_left(self):
+    @expose_command()
+    def integrate_left(self):
         """Integrate current window left."""
         self.focused_node.integrate_left()
         self.refocus()
 
-    def cmd_integrate_right(self):
+    @expose_command()
+    def integrate_right(self):
         """Integrate current window right."""
         self.focused_node.integrate_right()
         self.refocus()
 
-    def cmd_integrate_up(self):
+    @expose_command()
+    def integrate_up(self):
         """Integrate current window up."""
         self.focused_node.integrate_up()
         self.refocus()
 
-    def cmd_integrate_down(self):
+    @expose_command()
+    def integrate_down(self):
         """Integrate current window down."""
         self.focused_node.integrate_down()
         self.refocus()
 
-    def cmd_mode_horizontal(self):
+    @expose_command()
+    def mode_horizontal(self):
         """Next window will be added horizontally."""
         self.add_mode = AddMode.HORIZONTAL
 
-    def cmd_mode_vertical(self):
+    @expose_command()
+    def mode_vertical(self):
         """Next window will be added vertically."""
         self.add_mode = AddMode.VERTICAL
 
-    def cmd_mode_horizontal_split(self):
+    @expose_command()
+    def mode_horizontal_split(self):
         """Next window will be added horizontally, splitting space of current
         window.
         """
         self.add_mode = AddMode.HORIZONTAL | AddMode.SPLIT
 
-    def cmd_mode_vertical_split(self):
+    @expose_command()
+    def mode_vertical_split(self):
         """Next window will be added vertically, splitting space of current
         window.
         """
         self.add_mode = AddMode.VERTICAL | AddMode.SPLIT
 
-    def cmd_size(self, x):
+    @expose_command()
+    def size(self, x):
         """Change size of current window.
 
         (It's recommended to use `width()`/`height()` instead.)
@@ -224,22 +243,26 @@ class Plasma(Layout):
         self.focused_node.size = x
         self.refocus()
 
-    def cmd_width(self, x):
+    @expose_command()
+    def width(self, x):
         """Set width of current window."""
         self.focused_node.width = x
         self.refocus()
 
-    def cmd_height(self, x):
+    @expose_command()
+    def height(self, x):
         """Set height of current window."""
         self.focused_node.height = x
         self.refocus()
 
-    def cmd_reset_size(self):
+    @expose_command()
+    def reset_size(self):
         """Reset size of current window to automatic (relative) sizing."""
         self.focused_node.reset_size()
         self.refocus()
 
-    def cmd_grow(self, x):
+    @expose_command()
+    def grow(self, x):
         """Grow size of current window.
 
         (It's recommended to use `grow_width()`/`grow_height()` instead.)
@@ -247,12 +270,14 @@ class Plasma(Layout):
         self.focused_node.size += x
         self.refocus()
 
-    def cmd_grow_width(self, x):
+    @expose_command()
+    def grow_width(self, x):
         """Grow width of current window."""
         self.focused_node.width += x
         self.refocus()
 
-    def cmd_grow_height(self, x):
+    @expose_command()
+    def grow_height(self, x):
         """Grow height of current window."""
         self.focused_node.height += x
         self.refocus()
